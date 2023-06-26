@@ -5,10 +5,14 @@ import os
 from datetime import datetime
 from time import sleep
 from article import get_article
+import argparse
 
-import regex as re
-import requests
-from bs4 import BeautifulSoup
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-b", "--batches",
+    type=int,
+    help="number of articles to be scraped")
+args = parser.parse_args()
 
 random_url = "https://www.wikihow.com/Special:Randomizer"
 specific_url = "https://www.wikihow.com/Refill-a-Fire-Extinguisher"
@@ -16,7 +20,7 @@ specific_url = "https://www.wikihow.com/Refill-a-Fire-Extinguisher"
 # set to 1 to test with a specific url declared in specific_url and lower batches to 1
 USE_DEBUG = 0
 WORKDIR = "work"
-BATCHES = 1 if USE_DEBUG else 20  # change number of batches here
+BATCHES = 1 if USE_DEBUG else args.batches  # change number of batches here
 URL = specific_url if USE_DEBUG else random_url
 
 
@@ -42,5 +46,9 @@ def batch_and_dump():
 
 
 if __name__ == "__main__":
+    if type(args.batches) != int:
+        print("Please specify the amount of articles by passing --batches <number> as argument.")
+        print("Quitting on error.")
+        exit(1)
     print("Wikihow scraper starting...")
     batch_and_dump()
