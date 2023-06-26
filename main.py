@@ -11,7 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 
 random_url = "https://www.wikihow.com/Special:Randomizer"
-specific_url = "https://www.wikihow.com/Raise-Mealworms"
+specific_url = "https://www.wikihow.com/Refill-a-Fire-Extinguisher"
 
 # set to 1 to test with a specific url declared in specific_url and lower batches to 1
 USE_DEBUG = 0
@@ -43,4 +43,4 @@ def batch_and_dump():
 
 if __name__ == "__main__":
     print("Wikihow scraper starting...")
-    get_article(URL)
+    batch_and_dump()
