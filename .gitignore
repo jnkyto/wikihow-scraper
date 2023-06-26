@@ -2,3 +2,4 @@ venv/
 .idea/
 work/
 __pycache__/
+.env

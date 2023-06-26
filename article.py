@@ -1,7 +1,13 @@
+import os
+
 import regex as re
 from bs4 import BeautifulSoup
 import requests
 from hashlib import md5
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv()
+
 
 # purges everything inside <span>-tags. on wikihow these are usually tooltips
 def despanify(soup):
@@ -17,7 +23,10 @@ def get_article(art_url):
     headline_regex = re.compile("title_\w{2}")
     step_regex = re.compile("step-id-\d{2,}")
 
-    r = requests.get(art_url)
+    r = requests.get(art_url, headers={
+        "User-Agent": os.getenv("UA"),
+        "From": os.getenv("EMAIL")
+    })
     soup = BeautifulSoup(r.content, "html.parser")
 
     div_article = soup.find("div", class_="mw-parser-output")
