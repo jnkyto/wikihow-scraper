@@ -51,7 +51,7 @@ def get_article(art_url):
         "url": r.url,
         "headline": headline,
         "subtext": subtext,
-        "tysk": tysk if type(tysk) == str else "none"
+        "tysk": tysk if type(tysk) == str else None
     }
 
     # print(f"Headline:\n{headline} // URL Hash: {url_hash.hexdigest()}\n\nSubtext:\n{subtext}")

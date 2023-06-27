@@ -28,11 +28,12 @@ def batch_and_dump(batches):
 
         if url_hash in done_hashes:
             print(f"Hash {url_hash} already scraped! Skipping...")
+            i -= 1
             continue
         done_hashes.append(url_hash)
 
         print(f"Art {i + 1}/{batches} done. URL: {url}, Hash: {url_hash}")
-        sleep(0.2)  # let's not flood requests
+        sleep(0.3)  # let's not flood requests
 
     with open(f"{WORKDIR}/batch_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json", "w") as file:
         json.dump(json_batch, file)
@@ -53,5 +54,5 @@ if __name__ == "__main__":
     print("Wikihow scraper starting...")
     batch_and_dump(args.batches)
     # get_article(URL)
-    print("All done. Exiting...")
+    print("All done. Exiting... (writing the .json-file might take a while)")
     exit(0)
