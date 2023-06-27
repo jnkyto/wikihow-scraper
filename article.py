@@ -1,5 +1,6 @@
 import os
 
+import bs4.element
 import regex as re
 from bs4 import BeautifulSoup
 import requests
@@ -21,6 +22,7 @@ def get_article(art_url):
     art_regex = re.compile("mf-section-\d{1,}")
     subtext_regex = re.compile("(?<=\<p\>)(.*)(?=\<\/p\>)")
     headline_regex = re.compile("title_\w{2}")
+    stepgroup_regex = re.compile("steps_\d{1,2}")
     step_regex = re.compile("step-id-\d{2,}")
 
     r = requests.get(art_url, headers={
@@ -33,23 +35,29 @@ def get_article(art_url):
     headline = soup.find("h1", class_=headline_regex).findChild("a").contents[0]
     url_hash = md5(str(r.url).encode())
     subtext = despanify(div_article.find("div", class_="mf-section-0").findChild("p")).text
-    steps = div_article.find_all("li", id=step_regex)
+    tysk = div_article.find("div", class_="section_text", id="thingsyoushouldknow")
+    if type(tysk) is bs4.element.Tag:
+        tysk = despanify(tysk).text.replace("\n", "")
+    stepgroups = div_article.find_all("div", id=stepgroup_regex, class_="section_text")
 
-    # print(f"Headline:\n{headline} // URL Hash: {url_hash.hexdigest()}\n\nSubtext:\n{subtext}\n")
+    # print(f"Headline:\n{headline} // URL Hash: {url_hash.hexdigest()}\n\nSubtext:\n{subtext}")
 
     json_data = {
         "hash": url_hash.hexdigest(),
         "url": r.url,
         "headline": headline,
-        "subtext": subtext
+        "subtext": subtext,
+        "tysk": tysk if type(tysk) == str else "none"
     }
 
-    step_ctr = 1
-    for entry in steps[0:]:
-        entry = entry.find("div", class_="step")
-        entry = despanify(entry).text.replace("\n", "")
-        # print(f"Step {step_ctr}:\n{entry}\n")
-        json_data[f"step_{step_ctr}"] = entry
-        step_ctr += 1
+    for i, stepgroup in enumerate(stepgroups, start=1):
+        steps = stepgroup.find_all("li", id=step_regex)
+        json_data[f"group_{i}"] = []
+        for j, step in enumerate(steps, start=1):
+            step = step.find("div", class_="step")
+            step = despanify(step).text.replace("\n", "")
+            step_data = {f"step_{j}": step}
+            json_data[f"group_{i}"].append(step_data)
+        # print(f"Group {i}: {json_data[f'group_{i}']}")
 
     return json_data, r.url, url_hash.hexdigest()
