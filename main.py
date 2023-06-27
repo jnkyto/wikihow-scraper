@@ -1,14 +1,15 @@
 # Fetches a random article from Wikihow and dumps into json
 
+import argparse
 import json
 import os
 from datetime import datetime
 from time import sleep
+
 from article import get_article
-import argparse
 
 random_url = "https://www.wikihow.com/Special:Randomizer"
-specific_url = "https://www.wikihow.com/Contact-Barack-Obama"
+specific_url = "https://www.wikihow.com/Refill-a-Fire-Extinguisher"
 
 # set to 1 to test with a specific url declared in specific_url and lower batches to 1
 USE_DEBUG = 0
@@ -51,3 +52,6 @@ if __name__ == "__main__":
         exit(1)
     print("Wikihow scraper starting...")
     batch_and_dump(args.batches)
+    # get_article(URL)
+    print("All done. Exiting...")
+    exit(0)
