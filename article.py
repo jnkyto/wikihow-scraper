@@ -6,6 +6,7 @@ import regex as re
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from exceptions import RequestFailedException
 
 load_dotenv()
 
@@ -18,6 +19,7 @@ def despanify(soup):
     return soup
 
 
+# TODO: can the url be fetched before requesting the whole page somehow? this would cut down unnecessary requests
 def get_article(art_url):
     # regexes for finding the html-tags we want
     art_regex = re.compile("mf-section-\d{1,}")
@@ -31,6 +33,9 @@ def get_article(art_url):
         "User-Agent": os.getenv("UA"),
         "From": os.getenv("EMAIL")
     })
+    # check for request failure
+    if r.status_code != 200:
+        raise RequestFailedException
     soup = BeautifulSoup(r.content, "html.parser")
 
     div_article = soup.find("div", class_="mw-parser-output")  # this finds the content of the article
@@ -51,12 +56,14 @@ def get_article(art_url):
         "url": r.url,
         "headline": headline,
         "subtext": subtext,
+        # some articles contain a "Things You Should Know"-field. append if it exists, otherwise set to null
         "tysk": tysk if type(tysk) == str else None
     }
 
     # print(f"Headline:\n{headline} // URL Hash: {url_hash.hexdigest()}\n\nSubtext:\n{subtext}")
 
     for i, stepgroup in enumerate(stepgroups, start=1):
+        # find every step in group of steps
         steps = stepgroup.find_all("li", id=step_regex)
         json_data[f"group_{i}"] = []
         for j, step in enumerate(steps, start=1):

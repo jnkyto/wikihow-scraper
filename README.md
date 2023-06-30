@@ -1,10 +1,11 @@
 # wikihow-scraper  
-Very simple Wikihow scraper which fetches random articles and dumps them into a .json-file. Designed for Python 3.11.
+Very simple Wikihow scraper which fetches random articles and dumps them into .json-files. Designed for Python 3.11.
 
 ### Usage:  
-1. Create a .env-file and set your user-agent header with `UA="<your UA here>"` and `EMAIL="<your email here>"`
-   - Ideally you should write what and why you are scraping in the UA field
-2. Run `python main.py -b <number of articles>`
+1. Create a .env-file and set your user-agent header with `UA="<your UA here>"` and `EMAIL="<your email here>"`.
+   - Ideally you should write what and why you are scraping in the UA field.
+2. Each batch contains 100 articles. The batches are written to separate files.
+3. Run `python main.py -b <number of batches>`.
 
 ### Notes:
 

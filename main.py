@@ -1,10 +1,12 @@
-# Fetches a random article from Wikihow and dumps into json
+# wikihow-scraper main program
+# (c) jnkyto 2023
 
 import argparse
 import json
 import os
 from datetime import datetime
 from time import sleep
+from exceptions import RequestFailedException
 
 from article import get_article
 
@@ -19,26 +21,37 @@ URL = specific_url if USE_DEBUG else random_url
 
 
 def batch_and_dump(batches):
+    # make working dirs if they do not exist
     if not os.path.exists(WORKDIR):
         os.makedirs(WORKDIR)
 
     timestamp: str = datetime.now().strftime('%Y%m%d-%H%M')
-    json_batch = {}
+    # keep track of already scraped articles in a list of hashes
     done_hashes = []
     for j in range(1, batches + 1):
         print(f"Starting batch {j} of {batches}...")
+        # the data structure for articles in current batch
+        json_batch = {}
         i = 0
         while i < BATCH_SIZE:
-            sleep(0.5)  # let's not flood requests
+            sleep(0.7)  # let's not flood requests
+
+            # current article data structure
             article_data = {}
 
             # handle 0.001% of articles that somehow manage to error out
             try:
                 article_data, url, url_hash = get_article(URL)
-            except:
-                print(f"An error occurred while getting the article. Skipping...")
+            # skip if request fails
+            except RequestFailedException:
+                print(f"Request failed upon trying to get an article. Skipping...")
+                continue
+            # skip if an unexpected data structure is encountered
+            except AttributeError:
+                print(f"Article parsing failed due to unknown structure. Skipping...")
                 continue
 
+            # skip if current article has already been scraped
             if url_hash in done_hashes:
                 print(f"Hash {url_hash} already scraped during this run! Skipping...")
                 continue
@@ -47,6 +60,7 @@ def batch_and_dump(batches):
             json_batch[f"{i}"] = article_data
 
             print(f"Art {i + 1}/{BATCH_SIZE} done. URL: {url}, Hash: {url_hash}")
+            # increase counter by 1. i used to have a reason for making this a while-loop, now i have none but it works
             i += 1
 
         with open(f"{WORKDIR}/{timestamp}_batch_{j}.json", "w") as file:
